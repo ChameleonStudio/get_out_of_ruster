@@ -7,7 +7,7 @@ game = Flask(__name__)
 @game.route("/start")
 def start():
     levels = []
-    for file_name in listdir('static/levels/'):
+    for file_name in sorted(listdir('static/levels/')):
         with open("static/levels/{}".format(file_name)) as f:
             body = f.readlines()
             x, y = len(body[0]) - 1, len(body)
