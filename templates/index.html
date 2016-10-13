@@ -17,6 +17,14 @@
     </style>
 </head>
 <body>
+    <script>
+        var levels_count = {{ levels | length }};
+        var levels = [
+            {% for level in levels %}
+                {{ level|safe }},
+            {% endfor %}
+        ]
+    </script>
     <script src="static/game.js"  type="text/javascript"> </script>
 </body>
 </html>

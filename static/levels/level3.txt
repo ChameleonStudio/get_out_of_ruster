@@ -1,7 +1,10 @@
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-!         !      o      x     x
-!         !                   x
-!                             x
-!              x        x     x
-!          x   x    x   x  o  x
-xxx!!!xxxxxxxxxx!!!xxxx!xx!x!xx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+!         !      o      x        x
+!         !                      x
+!                                x
+!              x        x        x
+!          x   x    x   x  o     x
+!       x  x        x            x
+x   xxxxx  xxxxx!!!xxxx!xx!x!xxxxx
+xx     o     #      o    #       x
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
