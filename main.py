@@ -1,11 +1,11 @@
-from flask import Flask
+from flask import Flask, render_template
 
 game = Flask(__name__)
 
 
 @game.route("/start")
 def start():
-    return "todo: GET OUT OF THE RASTER"
+    return render_template("index.html")
 
 
 @game.route("/exit")
