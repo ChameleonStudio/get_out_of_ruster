@@ -1,7 +1,11 @@
 from flask import Flask, render_template
 from os import listdir
+from random import shuffle
 
 game = Flask(__name__)
+
+
+PIC_COUNT = 23
 
 
 @game.route("/start")
@@ -20,4 +24,24 @@ def start():
 
 @game.route("/exit")
 def end():
-    return "todo: Greetings and next instructions."
+    indexies = ["%02.d" % i for i in range(PIC_COUNT)]
+    shuffle(indexies)
+    return render_template(
+        "greatings.html",
+        pictures=indexies
+    )
+
+
+@game.route("/detail/<index>")
+def detail(index):
+    return render_template(
+        "detail.html",
+        index=index,
+        next="%02.d" % ((int(index) + 1) % PIC_COUNT),
+        prev="%02.d" % ((int(index) + PIC_COUNT - 1) % PIC_COUNT)
+    )
+
+
+@game.route("/instructions")
+def instructions():
+    return "instructions"
