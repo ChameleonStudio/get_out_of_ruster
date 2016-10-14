@@ -4,6 +4,7 @@ var jumping = false;
 var default_font_style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 var restarted = false;
 var lava_sound;
+var background_music;
 
 var state = {
 
@@ -38,7 +39,7 @@ var state = {
         game.load.audio('death', 'static/sounds/death.mp3');
         game.load.audio('success', 'static/sounds/success.mp3');
         game.load.audio('lava', 'static/sounds/lava.mp3');
-
+        game.load.audio('background', 'static/sounds/background.mp3');
     },
 
     randomSound: function (seq) {
@@ -46,8 +47,12 @@ var state = {
     },
 
     create: function() {
+        if (!background_music) {
+            background_music = game.add.sound("background");
+            background_music.loop = true;
+            background_music.play();
+        }
         restarted = false;
-        // Here we create the game
 
         // Set the background color to blue
         game.stage.backgroundColor = '#8FC2FF';
