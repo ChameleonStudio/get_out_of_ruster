@@ -1,7 +1,9 @@
 var current_level = 0;
 var current_size = 1;
+var jumping = false;
 var default_font_style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 var restarted = false;
+var lava_sound;
 
 var state = {
 
@@ -20,6 +22,27 @@ var state = {
         game.load.image('parts', 'static/assets/parts.png');
         game.load.image('lava_splash', 'static/assets/lava_splash.png');
         game.load.image('dark', 'static/assets/dark.png');
+
+        game.load.audio('step1', 'static/sounds/step1.mp3');
+        game.load.audio('step2', 'static/sounds/step2.mp3');
+        game.load.audio('step3', 'static/sounds/step3.mp3');
+        game.load.audio('step4', 'static/sounds/step4.mp3');
+        game.load.audio('eat1', 'static/sounds/eat1.mp3');
+        game.load.audio('eat2', 'static/sounds/eat2.mp3');
+        game.load.audio('eat3', 'static/sounds/eat3.mp3');
+
+        game.load.audio('lavapop', 'static/sounds/lavapop.mp3');
+        game.load.audio('coin', 'static/sounds/coin.mp3');
+        game.load.audio('fizz', 'static/sounds/fizz.mp3');
+        game.load.audio('fire', 'static/sounds/fire.mp3');
+        game.load.audio('death', 'static/sounds/death.mp3');
+        game.load.audio('success', 'static/sounds/success.mp3');
+        game.load.audio('lava', 'static/sounds/lava.mp3');
+
+    },
+
+    randomSound: function (seq) {
+        game.add.sound(seq[Math.floor(Math.random() * seq.length)]).play();
     },
 
     create: function() {
@@ -44,7 +67,16 @@ var state = {
     update: function() {
         // Here we update the game 60 times per second
         // Make the player and the walls collide
-        game.physics.arcade.collide(this.player, this.walls);
+        var before_y = this.player.body.velocity.y;
+
+        game.physics.arcade.collide(this.player, this.walls, function () {
+            if (
+                before_y > 10 &&
+                !(this.player.body.velocity.x == 0 && (this.cursor.left.isDown || this.cursor.right.isDown)))
+            {
+                this.randomSound(["step1", "step2", "step3", "step4"]);
+            }
+        }, null, this);
 
         // Call the 'takeCoin' function when the player takes a coin
         game.physics.arcade.overlap(this.player, this.coins, this.takeCoin, null, this);
@@ -53,7 +85,7 @@ var state = {
         game.physics.arcade.overlap(this.player, this.largers, this.larger, null, this);
 
         // Call the 'restart' function when the player touches the enemy or lava
-        game.physics.arcade.overlap(this.player, this.lavas, this.gameOver, null, this);
+        game.physics.arcade.overlap(this.player, this.lavas, this.fireDeath, null, this);
 
         game.physics.arcade.overlap(this.player, this.enemies, this.fight, null, this);
 
@@ -68,14 +100,20 @@ var state = {
         } else {
             this.player.body.velocity.x = 0;
         }
-
-
         if (this.cursor.up.isDown && this.player.body.touching.down) {
             this.player.body.velocity.y = - this.player.agility;
         }
+        if (lava_sound) lava_sound.volume = 0;
+        for (var i = 0; i < this.lavas.hash.length; i++) {
+            if(this.lavas.hash[i].inCamera && lava_sound) {
+                lava_sound.volume = 0.2;
+            }
+        }
+
     },
 
     smaller: function (player, smaller) {
+        this.randomSound(["eat1", "eat2", "eat3"]);
         current_size--;
         smaller.kill();
         this.explode('dark', smaller);
@@ -86,6 +124,7 @@ var state = {
     },
 
     larger: function (player, larger) {
+        this.randomSound(["eat1", "eat2", "eat3"]);
         current_size++;
         larger.kill();
         this.explode('dark', larger);
@@ -108,7 +147,8 @@ var state = {
 
     createMap: function(level) {
         // Create the level by going through the array
-
+        if (lava_sound) lava_sound.stop();
+        lava_sound = null;
         // Create 3 groups that will contain our objects
         this.walls = game.add.group();
         this.coins = game.add.group();
@@ -142,14 +182,6 @@ var state = {
                     this.largers.add(larger);
                 }
 
-                // Create a wall and add it to the 'walls' group
-                if (level.body[i][j] == 'x') {
-                    var wall = game.add.sprite(32 * j,32 * i, 'wall');
-                    wall.body.immovable = true;
-                    this.walls.add(wall);
-                    wall.z = i*j + 1000;
-                }
-
                 // Create a coin and add it to the 'coins' group
                 else if (level.body[i][j] == 'o') {
                     var coin = game.add.sprite(32 * j,32 * i, 'coin');
@@ -158,6 +190,12 @@ var state = {
 
                 // Create a enemy and add it to the 'lava' group
                 else if (level.body[i][j] == '!') {
+                    if (!lava_sound) {
+                        lava_sound = game.add.sound("lava");
+                        lava_sound.loop = true;
+                        lava_sound.volume = 0.2;
+                    }
+
                     var lava = game.add.sprite(32 * j,32 * i, 'lava');
                     lava.body.immovable = true;
                     this.lavas.add(lava);
@@ -169,7 +207,15 @@ var state = {
                         emitter.width = lava.width;
                         emitter.minParticleSpeed.setTo(-10, -200);
                         emitter.maxParticleSpeed.setTo(10, -100);
-                        emitter.start(false, 400, Math.floor(Math.random() * 4000 + 2000));
+                        var frequency = Math.floor(Math.random() * 4000 + 2000);
+                        emitter.start(false, 400, frequency);
+                        game.time.events.loop(frequency, function () {
+                            if(this.inCamera) {
+                                var s = game.add.sound("lavapop");
+                                s.volume = 0.2;
+                                s.play();
+                            }
+                        }, lava);
                     }
 
                     if (level.body[i + 1] && level.body[i + 1][j] == ' ') {
@@ -183,7 +229,6 @@ var state = {
                     }
                 }
 
-
                 // Create a enemy and add it to the 'enemies' group
                 else if (level.body[i][j] == '#') {
                     var enemy = game.add.sprite(32 * j,32 * i, 'enemy');
@@ -191,7 +236,37 @@ var state = {
                     this.enemies.add(enemy);
                 }
             }
+
         }
+        if (lava_sound) lava_sound.play();
+
+        for (j = 0; j < level.body[0].length; j++) {
+            var is_wall = false;
+            var start = 0;
+            for (i = 0; i < level.body.length; i++) {
+                if (level.body[i][j] == 'x' && !is_wall) {
+                    is_wall = true;
+                    start = i;
+                }
+                if (level.body[i][j] != 'x' && is_wall) {
+                    is_wall = false;
+                    var wall = game.add.sprite(32 * j, 32 * start, 'wall');
+                    wall.scale.y = i - start;
+                    wall.body.immovable = true;
+                    this.walls.add(wall);
+                }
+                if (i == level.body.length - 1 && is_wall) {
+                    is_wall = false;
+                    var wall = game.add.sprite(32 * j, 32 * start, 'wall');
+                    wall.scale.y = i - start + 1;
+                    wall.body.immovable = true;
+                    this.walls.add(wall);
+                }
+            }
+        }
+
+        // Create a wall and add it to the 'walls' group
+
 
         this.showText('LEVEL ' + (current_level + 1), true);
 
@@ -204,21 +279,32 @@ var state = {
 
     fight: function (player, enemy) {
         if (enemy.position.y - player.position.y < player.height) {
+            this.explode('parts', this.player);
+            game.add.audio('death').play();
             this.gameOver();
         } else {
             player.body.velocity.y = -250;
+            game.add.audio('coin').play();
             enemy.kill();
             this.explode('blood', enemy);
         }
     },
 
     takeCoin: function(player, coin) {
+        game.add.audio('coin').play();
         coin.kill();
         this.explode('spark', coin);
 
         if (this.coins.total == 0) {
             this.levelComplete();
         }
+    },
+
+    fireDeath: function(player, lava) {
+        this.gameOver();
+        game.add.audio('fizz').play();
+        game.add.audio('fire').play();
+        this.explode('lava_splash', this.player);
     },
 
     explode: function (sprite, obj) {
@@ -242,7 +328,7 @@ var state = {
 
     levelComplete: function () {
         current_level++;
-
+        game.add.sound("success").play();
         this.showText('LEVEL COMPLETE');
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
@@ -264,7 +350,6 @@ var state = {
         this.showText('GAME OVER');
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
-        this.explode('parts', this.player);
         game.time.events.add(
             1500, this.restart, this
         );

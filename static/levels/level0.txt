@@ -2,6 +2,6 @@ xxxxxxxxxxxxxxxxxxxxxx
 x                    x
 x                    x
 x  p     o           x
-x                    x
-x       xxx       o  x
+x         +          x
+x       xxx   --  o  x
 xxxxxxxxxxxxxxxxxxxxxx
