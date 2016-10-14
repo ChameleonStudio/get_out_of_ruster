@@ -95,7 +95,9 @@ var state = {
         game.physics.arcade.overlap(this.player, this.enemies, this.fight, null, this);
 
         game.physics.arcade.overlap(this.enemies, this.walls, this.enemyTurn, null, this);
+        game.physics.arcade.overlap(this.enemies, this.stops, this.enemyTurn, null, this);
         game.physics.arcade.overlap(this.enemies, this.lavas, this.enemyTurn, null, this);
+        
 
         // Move the player when an arrow key is pressed
         if (this.cursor.left.isDown) {
@@ -161,6 +163,7 @@ var state = {
         this.enemies = game.add.group();
         this.smallers = game.add.group();
         this.largers = game.add.group();
+        this.stops = game.add.group();
 
         game.world.setBounds(0, 0,
             level.size.x * 32,
@@ -176,7 +179,13 @@ var state = {
                     this.player.agility = 250;
                     current_size = 1;
                 }
-
+                
+                if (level.body[i][j] == '.') {
+                    var stop = game.add.sprite(32 * j + 8,32 * i + 16);
+                    stop.body.immovable = true;
+                    this.stops.add(stop);
+                }
+                
                 if (level.body[i][j] == '-') {
                     var smaller = game.add.sprite(32 * j + 8,32 * i + 16, 'smaller');
                     this.smallers.add(smaller);
@@ -339,7 +348,7 @@ var state = {
         this.player.body.velocity.y = 0;
         this.player.kill();
         game.time.events.add(
-            1500,
+            2000,
             function () {
                 if (current_level >= levels_count) {
                     window.location.href = '/exit';
@@ -373,6 +382,6 @@ var state = {
 };
 
 
-var game = new Phaser.Game(704, 224);
+var game = new Phaser.Game(32 * 27, 32 * 9);
 game.state.add('main', state);
 game.state.start('main');

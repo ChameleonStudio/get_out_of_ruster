@@ -1,7 +1,9 @@
-xxxxxxxxxxxxxxxxxxxxxx
-x                    x
-x                    x
-x   p                x
-x          o         x
-x                 o  x
-xxxxxxx!!xxxxx!!xxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxx
+x                         x
+x x x  x  xxx  x  x   x x x
+x xxx xxx  x  xxx x    x  x
+x x x x x  x  x x xxx  x  x
+x                         x
+xo           p           ox
+x                         x
+xxxxxx!!!xxxxxxxxx!!!xxxxxx

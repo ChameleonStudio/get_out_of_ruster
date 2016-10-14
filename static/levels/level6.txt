@@ -1,9 +1,9 @@
-xxxxxxx!!!xxxxxxxxxxxxxxxxxxxxxxxx!x
-x            o                    !x
-x                                 !x
-x    o  x #   # x   o    o         x
-x       xxxxxxxxxxxxxx!!xxxxxxx    x
-x  o            p                 xx
-x                               x  x
-x       x  # #        #  #   x     x
-x!!!!!xxxxxxxxxxxxxxxxxxxxxxxx!!!!!x
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+x                                                                 x
+x xxx x x x  xx  x  xx    x  x   xx xxx   x    xx xxx  x  xx  xxx x
+x  x  xxx x  x   x  x   x x xxx  x   x   xxx   x   x  xxx x x  x  x
+x  x  x x x xx   x xx    x  x x xx   x   x x  xx   x  x x x x  x  x
+x                                                                 x
+x   p                                                          o  x
+x               -            + +   .# # # # .                     x
+xxxxxxxxxx!!!!!xxx!!!!!!xxxxxxxxx!!!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

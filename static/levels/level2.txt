@@ -1,7 +1,9 @@
-xxxxxxxxxxxxxxxxxxxxxx
-x                    x
-x                    x
-x  p              о  x
-x                    x
-x     x    #   x  o  x
-xxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxx
+x                         x
+x           ! !           x
+x          !!!!!          x
+x           !!!           x
+x o          !          o x
+x            p            x
+x  #  .             .  #  x
+xxxxxx!!!xxxxxxxxx!!!xxxxxx
