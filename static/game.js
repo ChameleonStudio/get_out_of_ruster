@@ -162,7 +162,7 @@ var state = {
             2: function() {
                 player.width = 63;
                 player.height = 63;
-                player.agility = 220;
+                player.agility = 150;
                 player.killability = true;
                 player.killable = false;
             }

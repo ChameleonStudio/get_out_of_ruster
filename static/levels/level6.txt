@@ -3,7 +3,7 @@ x                                                                 x
 x xxx x x x  xx  x  xx    x  x   xx xxx   x    xx xxx  x  xx  xxx x
 x  x  xxx x  x   x  x   x x xxx  x   x   xxx   x   x  xxx x x  x  x
 x  x  x x x xx   x xx    x  x x xx   x   x x  xx   x  x x x x  x  x
-x                                                                 x
-x   p                                                          o  x
-x               -            + +   .# # # # .                     x
-xxxxxxxxxx!!!!!xxx!!!!!!xxxxxxxxx!!!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+x               o                                              o  x
+x   p                                                             x
+x               -            + +   . #  #  #  # .                 x
+xxxxxxxxxx!!!!!xxx!!!!!!xxxxxx!xx!!!xxxxxxxxxxxxxxxxxxxxxxxxx!!!!!x
