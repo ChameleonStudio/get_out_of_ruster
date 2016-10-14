@@ -145,9 +145,27 @@ var state = {
         if (player.height < size * 32)
             player.y -= player.height;
         var sizes = {
-            0: function() { player.width = 16; player.height = 16; player.agility = 280; },
-            1: function() { player.width = 31; player.height = 31; player.agility = 250; },
-            2: function() { player.width = 63; player.height = 63; player.agility = 220; }
+            0: function() {
+                player.width = 16;
+                player.height = 16;
+                player.agility = 280;
+                player.killability = false;
+                player.killable = true;
+            },
+            1: function() {
+                player.width = 31;
+                player.height = 31;
+                player.agility = 250;
+                player.killability = true;
+                player.killable = true;
+            },
+            2: function() {
+                player.width = 63;
+                player.height = 63;
+                player.agility = 220;
+                player.killability = true;
+                player.killable = false;
+            }
         };
         sizes[size]();
     },
@@ -177,6 +195,8 @@ var state = {
                     this.player = game.add.sprite(32 * j,32 * i, 'player');
                     this.player.body.gravity.y = 600;
                     this.player.agility = 250;
+                    this.player.killability = true;
+                    this.player.killable = true;
                     current_size = 1;
                 }
                 
@@ -292,7 +312,7 @@ var state = {
     },
 
     fight: function (player, enemy) {
-        if (enemy.position.y - player.position.y < player.height) {
+        if (enemy.position.y - player.position.y < player.height && player.killable || !player.killability) {
             this.explode('parts', this.player);
             game.add.audio('death').play();
             this.gameOver();
