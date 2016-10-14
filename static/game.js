@@ -10,6 +10,20 @@ var state = {
         game.load.image('coin', 'static/assets/coin.png');
         game.load.image('lava', 'static/assets/lava.png');
         game.load.image('enemy', 'static/assets/enemy.png');
+
+        game.load.image('spark', 'static/assets/spark.png');
+        game.load.image('blood', 'static/assets/blood.png');
+        game.load.image('parts', 'static/assets/parts.png');
+        game.load.image('lava_splash', 'static/assets/lava_splash.png');
+    },
+
+    explode: function (sprite, obj) {
+        var emitter = game.add.emitter(obj.x + obj.width / 2, obj.y + obj.height / 2, 100);
+        emitter.makeParticles(sprite);
+        emitter.gravity = 700;
+        emitter.minParticleSpeed.setTo(-200, -200);
+        emitter.maxParticleSpeed.setTo(200, 200);
+        emitter.start(true, 800, null, 16);
     },
 
     create: function() {
@@ -26,13 +40,7 @@ var state = {
 
         // Variable to store the arrow key pressed
         this.cursor = game.input.keyboard.createCursorKeys();
-
-        // Create the player in the middle of the game
-        this.player = game.add.sprite(70, 100, 'player');
-
-        // Add gravity to make it fall
-        this.player.body.gravity.y = 600;
-
+        
         this.create_map(levels[current_level]);
     },
 
@@ -45,7 +53,7 @@ var state = {
         game.physics.arcade.overlap(this.player, this.coins, this.takeCoin, null, this);
 
         // Call the 'restart' function when the player touches the enemy or lava
-        game.physics.arcade.overlap(this.player, this.lavas, this.restart, null, this);
+        game.physics.arcade.overlap(this.player, this.lavas, this.gameOver, null, this);
 
         game.physics.arcade.overlap(this.player, this.enemies, this.fight, null, this);
 
@@ -71,35 +79,42 @@ var state = {
 
     fight: function (player, enemy) {
         if (enemy.position.y - player.position.y < 32) {
-            this.restart();
+            this.gameOver();
         } else {
             player.body.velocity.y = -250;
             enemy.kill();
+            this.explode('blood', enemy);
         }
     },
 
     create_map: function(level) {
         // Create the level by going through the array
-        
+
         // Create 3 groups that will contain our objects
         this.walls = game.add.group();
         this.coins = game.add.group();
         this.lavas = game.add.group();
         this.enemies = game.add.group();
-        
+
         game.world.setBounds(0, 0,
             level.size.x * 32,
             level.size.y * 32
         );
-        
+
         for (var i = 0; i < level.body.length; i++) {
             for (var j = 0; j < level.body[i].length; j++) {
+
+                if (level.body[i][j] == 'p') {
+                    this.player = game.add.sprite(32 * j,32 * i, 'player');
+                    this.player.body.gravity.y = 600;
+                }
 
                 // Create a wall and add it to the 'walls' group
                 if (level.body[i][j] == 'x') {
                     var wall = game.add.sprite(32 * j,32 * i, 'wall');
                     wall.body.immovable = true;
                     this.walls.add(wall);
+                    wall.z = i*j + 1000;
                 }
 
                 // Create a coin and add it to the 'coins' group
@@ -113,9 +128,29 @@ var state = {
                     var lava = game.add.sprite(32 * j,32 * i, 'lava');
                     lava.body.immovable = true;
                     this.lavas.add(lava);
+
+                    if (level.body[i - 1] && level.body[i - 1][j] == ' ') {
+                        var emitter = game.add.emitter(lava.x + lava.width / 2, lava.y, 100);
+                        emitter.makeParticles('lava_splash');
+                        emitter.gravity = 800;
+                        emitter.width = lava.width;
+                        emitter.minParticleSpeed.setTo(-10, -200);
+                        emitter.maxParticleSpeed.setTo(10, -100);
+                        emitter.start(false, 400, Math.floor(Math.random() * 4000 + 2000));
+                    }
+
+                    if (level.body[i + 1] && level.body[i + 1][j] == ' ') {
+                        emitter = game.add.emitter(lava.x + lava.width / 2, lava.y + lava.height, 100);
+                        emitter.makeParticles('lava_splash');
+                        emitter.gravity = 800;
+                        emitter.width = lava.width;
+                        emitter.minParticleSpeed.setTo(0, 100);
+                        emitter.maxParticleSpeed.setTo(0, 150);
+                        emitter.start(false, 400, Math.floor(Math.random() * 6000 + 1000));
+                    }
                 }
-                
-                
+
+
                 // Create a enemy and add it to the 'enemies' group
                 else if (level.body[i][j] == '#') {
                     var enemy = game.add.sprite(32 * j,32 * i, 'enemy');
@@ -132,9 +167,23 @@ var state = {
 
     takeCoin: function(player, coin) {
         coin.kill();
+        this.explode('spark', coin);
+
         if (this.coins.total == 0) {
             this.levelComplete();
         }
+    },
+
+    gameOver: function () {
+        this.showText('GAME OVER');
+        this.player.body.velocity.x = 0;
+        this.player.body.velocity.y = 0;
+        this.explode('parts', this.player);
+        this.player.kill();
+
+        game.time.events.add(
+            1500, this.restart, this
+        );
     },
 
     levelComplete: function () {
@@ -144,7 +193,6 @@ var state = {
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
         this.player.kill();
-
         game.time.events.add(
             1500,
             function () {

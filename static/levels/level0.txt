@@ -1,7 +1,7 @@
 xxxxxxxxxxxxxxxxxxxxxx
 x                    x
 x                    x
-x  p              о  x
+x  p     o           x
 x                    x
-x     x    #   x  o  x
+x       xxx       o  x
 xxxxxxxxxxxxxxxxxxxxxx
