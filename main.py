@@ -47,4 +47,4 @@ def detail(index):
 
 @game.route("/instructions")
 def instructions():
-    return "instructions"
+    return "Предлагаю где-нибудь в центре позавтракать/отобедать. Как будешь готоваб - звони/пиши) Даник."
