@@ -1,8 +1,11 @@
 var current_level = 0;
-var current_size = 1;
-var jumping = false;
+var score = 0;
+
 var default_font_style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+
+// to avoid double downgrade
 var restarted = false;
+
 var lava_sound;
 var background_music;
 
@@ -65,13 +68,12 @@ var state = {
 
         // Variable to store the arrow key pressed
         this.cursor = game.input.keyboard.createCursorKeys();
-        
+
         this.createMap(levels[current_level]);
     },
 
     update: function() {
         // Here we update the game 60 times per second
-        // Make the player and the walls collide
         var before_y = this.player.body.velocity.y;
 
         game.physics.arcade.collide(this.player, this.walls, function () {
@@ -83,13 +85,11 @@ var state = {
             }
         }, null, this);
 
-        // Call the 'takeCoin' function when the player takes a coin
         game.physics.arcade.overlap(this.player, this.coins, this.takeCoin, null, this);
 
         game.physics.arcade.overlap(this.player, this.smallers, this.smaller, null, this);
         game.physics.arcade.overlap(this.player, this.largers, this.larger, null, this);
 
-        // Call the 'restart' function when the player touches the enemy or lava
         game.physics.arcade.overlap(this.player, this.lavas, this.fireDeath, null, this);
 
         game.physics.arcade.overlap(this.player, this.enemies, this.fight, null, this);
@@ -110,39 +110,40 @@ var state = {
         if (this.cursor.up.isDown && this.player.body.touching.down) {
             this.player.body.velocity.y = - this.player.agility;
         }
+        
+        // turn off lava sound when it actually on the scene
         if (lava_sound) lava_sound.volume = 0;
         for (var i = 0; i < this.lavas.hash.length; i++) {
             if(this.lavas.hash[i].inCamera && lava_sound) {
                 lava_sound.volume = 0.2;
             }
         }
-
     },
 
     smaller: function (player, smaller) {
         this.randomSound(["eat1", "eat2", "eat3"]);
-        current_size--;
+        player.current_size--;
         smaller.kill();
         this.explode('dark', smaller);
-        if (current_size < 0) {
-            current_size = 0;
+        if (player.current_size < 0) {
+            player.current_size = 0;
         }
-        this.changeSize(player, current_size);
+        this.changeSize(player);
     },
 
     larger: function (player, larger) {
         this.randomSound(["eat1", "eat2", "eat3"]);
-        current_size++;
+        player.current_size++;
         larger.kill();
         this.explode('dark', larger);
-        if (current_size > 2) {
+        if (player.current_size > 2) {
             current_size = 2;
         }
-        this.changeSize(player, current_size);
+        this.changeSize(player, player.current_size);
     },
 
-    changeSize: function(player, size) {
-        if (player.height < size * 32)
+    changeSize: function(player) {
+        if (player.height < player.current_size * 32)
             player.y -= player.height;
         var sizes = {
             0: function() {
@@ -167,14 +168,13 @@ var state = {
                 player.killable = false;
             }
         };
-        sizes[size]();
+        sizes[player.current_size]();
     },
 
     createMap: function(level) {
-        // Create the level by going through the array
         if (lava_sound) lava_sound.stop();
         lava_sound = null;
-        // Create 3 groups that will contain our objects
+
         this.walls = game.add.group();
         this.coins = game.add.group();
         this.lavas = game.add.group();
@@ -197,7 +197,7 @@ var state = {
                     this.player.agility = 250;
                     this.player.killability = true;
                     this.player.killable = true;
-                    current_size = 1;
+                    this.player.current_size = 1;
                 }
                 
                 if (level.body[i][j] == '.') {
@@ -272,6 +272,7 @@ var state = {
             }
 
         }
+
         if (lava_sound) lava_sound.play();
 
         for (j = 0; j < level.body[0].length; j++) {
@@ -298,9 +299,6 @@ var state = {
                 }
             }
         }
-
-        // Create a wall and add it to the 'walls' group
-
 
         this.showText('LEVEL ' + (current_level + 1), true);
 
@@ -371,7 +369,7 @@ var state = {
             2000,
             function () {
                 if (current_level >= levels_count) {
-                    window.location.href = '/exit';
+                    window.location.href = '/';
                 }
                 game.state.start('main');
             },

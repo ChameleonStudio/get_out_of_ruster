@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from os import listdir
 from random import shuffle
+from functools import wraps
 
 game = Flask(__name__)
 
@@ -8,43 +9,46 @@ game = Flask(__name__)
 PIC_COUNT = 23
 
 
-@game.route("/start")
-def start():
-    if 'Mobile' in request.headers.get('User-Agent'):
-        return "Mobile is not allowed (even if it's Nexus 5X). Open this page using your PC."
+def mobile_only(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        if 'Mobile' in request.headers.get('User-Agent'):
+            return "Mobile is not allowed (even if it's Nexus 5X). Open this page using your PC."
+        return result
+    return wrapper
 
+
+def load_levels(dir_name):
     levels = []
-    for file_name in sorted(listdir('static/levels/')):
-        with open("static/levels/{}".format(file_name)) as f:
+    for file_name in sorted(listdir('static/{}/'.format(dir_name))):
+        with open("static/{}/{}".format(dir_name, file_name)) as f:
             body = f.readlines()
             x, y = len(body[0]) - 1, len(body)
             levels.append({
                 "size": {"x": x, "y": y},
                 "body": body
             })
-    return render_template("index.html", levels=levels)
+    return levels
 
 
-@game.route("/exit")
+@game.route("/")
+def home():
+    return render_template("home.html")
+
+
+@game.route("/game")
+@mobile_only
+def start():
+    return render_template("index.html", levels=load_levels("levels"))
+
+
+@game.route("/start")
+@mobile_only
+def natali_levels():
+    return render_template("index.html", levels=load_levels("natali_levels"))
+
+
+@game.route("/end")
 def end():
-    indexies = ["%02.d" % i for i in range(PIC_COUNT)]
-    shuffle(indexies)
-    return render_template(
-        "greatings.html",
-        pictures=indexies
-    )
-
-
-@game.route("/detail/<index>")
-def detail(index):
-    return render_template(
-        "detail.html",
-        index=index,
-        next="%02.d" % ((int(index) + 1) % PIC_COUNT),
-        prev="%02.d" % ((int(index) + PIC_COUNT - 1) % PIC_COUNT)
-    )
-
-
-@game.route("/instructions")
-def instructions():
-    return "Предлагаю где-нибудь в центре позавтракать/отобедать. Как будешь готова, - звони/пиши) Даник."
+    return "END"
