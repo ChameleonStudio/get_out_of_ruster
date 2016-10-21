@@ -12,6 +12,7 @@ var background_music;
 var state = {
 
     preload: function() {
+        this.showText("LOADING...");
         // Here we preload the assets
         game.load.image('player', 'static/assets/player.png');
         game.load.image('wall', 'static/assets/wall.png');
